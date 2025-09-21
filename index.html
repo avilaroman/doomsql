@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>DuckDB‑WASM Doom 3D</title>
+  <title>Doom SQL</title>
   <style>
     body {
         display: flex; /* Use flexbox for layout */
@@ -45,9 +45,9 @@
 </head>
 
 <body>
-  <pre id="screen">Cargando DuckDB-WASM... ⏳</pre>
+  <pre id="screen">Cargando DoomSQL... ⏳</pre>
   <pre id="minimap"></pre>
-  <div id="status"></div> <!-- Optional status line -->
+  <div id="status">tic toc ... en esa esta</div> <!-- Optional status line -->
 
   <script type="module">
     import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.28.0/+esm';
@@ -74,7 +74,7 @@
 
       try {
         logVerbose("Starting initialization...");
-        screenEl.textContent = "Cargando DuckDB-WASM... ⏳\n(Módulo importado) 📦";
+        screenEl.textContent = "Cargando DoomSQL... ⏳\n(Módulo importado) 📦";
         logVerbose("DuckDB-WASM module imported.");
 
         const logger = new duckdb.ConsoleLogger(duckdb.LogLevel.WARNING);
@@ -95,9 +95,9 @@
         }
 
         logVerbose(`Selected bundle:`, bundle);
-        screenEl.textContent = `Cargando DuckDB-WASM... ⏳\n(Bundle seleccionado: ${bundle.mainModule.split('/').pop()})`;
+        screenEl.textContent = `Cargando DoomSQL... ⏳\n(Bundle seleccionado: ${bundle.mainModule.split('/').pop()})`;
 
-        logVerbose("Creating Worker Blob URL...");
+        logVerbose("Creando Worker Blob URL...");
         screenEl.textContent += "\nCreando trabajador... 🛠️";
         const workerUrl = URL.createObjectURL(new Blob([`importScripts("${bundle.mainWorker}");`], { type: 'text/javascript' }));
         logVerbose("Worker Blob URL created:", workerUrl);
@@ -124,7 +124,7 @@
         await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
 
         logVerbose("DuckDB-WASM Instantiated successfully.");
-        screenEl.textContent = "DuckDB-WASM Instanciado. ✅\nLimpiando URL del trabajador...";
+        screenEl.textContent = "DoomSQL Instanciado. ✅\nLimpiando URL del trabajador...";
 
         URL.revokeObjectURL(workerUrl);
         logVerbose("Worker Blob URL revoked.");
@@ -137,13 +137,13 @@
         // ... (el resto de la lógica del juego permanece igual, solo cambian los textos visibles al usuario) ...
 
         logVerbose("Performing initial render...");
-        await render3d(); // Initial render
-        await renderMinimap(); // Initial render
+        await render3d(); // Initial render DoomSQL
+        await renderMinimap(); // Initial render DoomSQL
         logVerbose("Initial render complete.");
-        updateStatus("Juego cargado. Usa WASD para moverte, Espacio para disparar. Pulsa L para ver registros. 🚀");
+        updateStatus("Juego cargado. Usa WASD para moverte, Barra Espaciadora para disparar. Pulsa L para ver registros. F12 🚀");
 
       } catch (error) {
-        console.error(">>> Error during DuckDB-WASM initialization or setup:", error);
+        console.error(">>> Error during DoomSQL initialization or setup:", error);
         screenEl.style.color = '#f00';
         screenEl.textContent = `¡¡¡ Error de inicialización !!! ❌\n\nMensaje: ${error.message}\n\nConsulta la consola (F12).`;
         minimapEl.textContent = "Error de inicio";
