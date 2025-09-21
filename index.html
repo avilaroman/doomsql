@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>DuckDB‑WASM Doom 3D</title>
+  <title>Doom SQL 🎮</title>
   <style>
     body {
         display: flex; /* Use flexbox for layout */
@@ -45,9 +45,9 @@
 </head>
 
 <body>
-  <pre id="screen">Loading DuckDB-WASM...</pre>
+  <pre id="screen">Cargando Doom SQL... 🎮✅</pre>
   <pre id="minimap"></pre>
-  <div id="status"></div> <!-- Optional status line -->
+  <div id="status">🎮 </div> <!-- Optional status line -->
 
   <script type="module">
     // Use the recommended +esm entry point for the CDN
@@ -77,14 +77,14 @@
       }
 
       try {
-        logVerbose("Starting initialization...");
-        screenEl.textContent = "Loading DuckDB-WASM...\n(Imported module)";
-        logVerbose("DuckDB-WASM module imported.");
+        logVerbose("Comenzando la inicializacion... ✅");
+        screenEl.textContent = "Cargando Doom SQL...\n(Imported module)";
+        logVerbose("Doom SQL modulo importado.");
 
         // Use WARNING level logs for potentially more info during init
         // For verbose mode, maybe switch to INFO or DEBUG? Let's keep WARNING for now.
         const logger = new duckdb.ConsoleLogger(duckdb.LogLevel.WARNING);
-        logVerbose("Logger created.");
+        logVerbose("Logger creado exitosamente.");
 
         const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
         logVerbose("Available bundles metadata:", JSDELIVR_BUNDLES);
@@ -101,12 +101,12 @@
         }
 
         logVerbose(`Selected bundle:`, bundle);
-        screenEl.textContent = `Loading DuckDB-WASM...\n(Selected bundle: ${bundle.mainModule.split('/').pop()})`;
+        screenEl.textContent = `Cargando Doom SQL...\n(Selected bundle: ${bundle.mainModule.split('/').pop()})`;
 
-        logVerbose("Creating Worker Blob URL...");
-        screenEl.textContent += "\nCreating worker...";
+        logVerbose("Creating Doom SQL Worker Blob URL...");
+        screenEl.textContent += "\nCreando el worker... 🛠️";
         const workerUrl = URL.createObjectURL(new Blob([`importScripts("${bundle.mainWorker}");`], { type: 'text/javascript' }));
-        logVerbose("Worker Blob URL created:", workerUrl);
+        logVerbose("Worker Doom SQL Blob URL creado 🛠️:", workerUrl);
 
         let worker;
         try {
@@ -121,7 +121,7 @@
 
         const db = new duckdb.AsyncDuckDB(logger, worker);
         logVerbose("AsyncDuckDB instance created.");
-        screenEl.textContent += "\nInstantiating WASM module...";
+        screenEl.textContent += "\n Instanciando el modulo WASM ...";
 
         worker.onerror = (e) => { console.error(">>> Error message from Worker:", e); screenEl.textContent += `\n\nWORKER ERROR: ${e.message}\n(file: ${e.filename}:${e.lineno})\nCheck Console F12.`; e.preventDefault(); };
         worker.onmessageerror = (e) => { console.error(">>> Message error from Worker:", e); screenEl.textContent += `\n\nWORKER MESSAGE ERROR: ${e}\nCheck Console F12.`; };
@@ -130,18 +130,18 @@
         await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
 
         logVerbose("DuckDB-WASM Instantiated successfully.");
-        screenEl.textContent = "DuckDB-WASM Instantiated.\nCleaning up worker URL...";
+        screenEl.textContent = "Doom SQL Instanciado.\nLimpiando el worker URL...";
 
         URL.revokeObjectURL(workerUrl);
-        logVerbose("Worker Blob URL revoked.");
-        screenEl.textContent = "Connecting to DuckDB...";
+        logVerbose("Worker Blob URL revocado");
+        screenEl.textContent = "Conectando al Doom SQL...";
 
         conn = await db.connect();
         screenEl.textContent = "Initializing game...";
-        logVerbose("DuckDB connection established.");
+        logVerbose("SQL DuckDB conexion establexica correctamente.");
 
         // 2) Initialize schema + game state
-        logVerbose("Initializing schema and game state...");
+        logVerbose("Inicializando el esquema y el estado del juego...");
         const initSql = `
           -- MAP
           DROP TABLE IF EXISTS map;
@@ -156,7 +156,7 @@
 
           -- PLAYER
           DROP TABLE IF EXISTS player;
-          CREATE TABLE player(x DOUBLE, y DOUBLE, dir DOUBLE, icon CHAR DEFAULT '@');
+          CREATE TABLE player(x DOUBLE, y DOUBLE, dir DOUBLE, icon CHAR DEFAULT '🧍');
           INSERT INTO player(x,y,dir) VALUES (8.5,8.5,0);
 
           -- ENEMIES (Generate Randomly)
@@ -165,7 +165,7 @@
             id INT PRIMARY KEY,
             x DOUBLE,
             y DOUBLE,
-            icon CHAR DEFAULT 'E',
+            icon CHAR DEFAULT '🤺',
             circle_dir INT DEFAULT CASE WHEN random() < 0.5 THEN 1 ELSE -1 END
           );
           WITH RandomPositions AS (
@@ -268,7 +268,7 @@
             const view_h = settings.view_h;
             const fov = settings.fov;
 
-            const entities = [...bullets.map(b => ({ ...b, type: 'bullet', icon: '*' })), ...enemies.map(e => ({ ...e, type: 'enemy' }))];
+            const entities = [...bullets.map(b => ({ ...b, type: 'bullet', icon: '💣' })), ...enemies.map(e => ({ ...e, type: 'enemy' }))];
             entities.sort((a, b) => (Math.hypot(b.x - player.x, b.y - player.y)) - (Math.hypot(a.x - player.x, a.y - player.y)));
             logVerbose(`Sorted ${entities.length} entities for drawing.`);
 
@@ -399,7 +399,7 @@
               WHERE e.id = mc.id;
             `;
 
-            logVerbose("Executing enemy movement SQL");
+            logVerbose("Ejecutando el movimiento enemigo en SQL");
             await conn.query(sql);
             logVerbose("--- tickEnemies END ---");
           } catch (error) {
@@ -464,21 +464,21 @@
         async function renderMinimap() {
           logVerbose("--- renderMinimap START ---");
           try {
-            logVerbose("Fetching data for minimap...");
+            logVerbose("Pidiendo datos para el minimap...");
             const [mapResult, playerResult, enemyResult, bulletResult] = await Promise.all([
               conn.query(`SELECT x, y, tile FROM map ORDER BY y, x;`),
               conn.query(`SELECT x, y, icon FROM player LIMIT 1;`),
               conn.query(`SELECT id, x, y, icon FROM enemies;`),
               conn.query(`SELECT id, x, y FROM bullets;`)
             ]);
-            logVerbose("Minimap data fetched.");
+            logVerbose("Minimap data Encontrada y mostrando.");
 
             const mapData = mapResult.toArray();
             const player = playerResult.get(0);
             const enemies = enemyResult.toArray();
             const bullets = bulletResult.toArray();
 
-            if (!player) { logVerbose("renderMinimap END - No player data"); return; }
+            if (!player) { logVerbose("renderMinimap END - No hay datos de jugador"); return; }
 
             const minimapBuffer = Array(MAP_HEIGHT).fill(null).map(() => Array(MAP_WIDTH).fill(' '));
 
